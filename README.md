@@ -93,3 +93,5 @@ Projeye katkı sağlamak isterseniz aşağıdaki adımları izleyebilirsiniz:
 2. Yeni bir özellik dalı (branch) oluşturun:
    ```bash
    git checkout -b feature/YeniOzellik
+
+---
