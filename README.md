@@ -71,3 +71,25 @@ findex/
 ├── index.html        # Tüm HTML yapısı, modern CSS stilleri ve JS motoru
 ├── README.md         # Proje tanıtım ve dokümantasyon dosyası
 └── LICENSE           # MIT Lisans belgesi
+
+---
+
+
+## 🔒 Güvenlik Notları
+
+Proje, istemci tarafında veri işlerken oluşabilecek güvenlik açıklarını önlemek için aşağıdaki standartları uygular:
+
+* **Katı CSP (Content-Security-Policy):** Yalnızca izin verilen kaynaklardan (Wikipedia, CrossRef, Open Library vb.) veri ve font yüklenmesini sağlar; arka planda izinsiz zararlı betiklerin çalışmasını engeller.
+* **Güvenli Yönlendirme (`sanitizeUrl` & `rel="noopener noreferrer"`):** Arama sonuçlarındaki bağlantılar filtrelenerek `javascript:` gibi zararlı protokoller engellenir ve açılan harici sitelerin ana sayfaya erişimi kesilir.
+* **XSS Koruması (DOM API):** Dış kaynaklardan gelen veriler doğrudan `innerHTML` ile değil, `createElement` ve `textContent` metotları kullanılarak güvenli bir şekilde ekrana yazdırılır.
+
+---
+
+## 🤝 Katkıda Bulunma
+
+Projeye katkı sağlamak isterseniz aşağıdaki adımları izleyebilirsiniz:
+
+1. Bu depoyu çatallayın (Fork edin).
+2. Yeni bir özellik dalı (branch) oluşturun:
+   ```bash
+   git checkout -b feature/YeniOzellik
