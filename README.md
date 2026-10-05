@@ -64,24 +64,10 @@ Proje tamamen bağımsız ve istemci taraflı çalıştığı için herhangi bir
    git clone [https://github.com/yusuf-basaran/findex.git](https://github.com/yusuf-basaran/findex.git)
    cd findex
 
-**📁 Proje Dosya Yapısı**
+## 📁 Proje Dosya Yapısı
+
+```text
 findex/
 ├── index.html        # Tüm HTML yapısı, modern CSS stilleri ve JS motoru
 ├── README.md         # Proje tanıtım ve dokümantasyon dosyası
 └── LICENSE           # MIT Lisans belgesi
-
-**🔒 Güvenlik Notları**
-
-Proje, harici zararlı betik enjeksiyonlarını önlemek için katı bir <meta http-equiv="Content-Security-Policy"> politikası uygular.
-Dış kaynaklı yönlendirmeler sanitizeUrl fonksiyonu ve rel="noopener noreferrer" özniteliği ile güvenli hale getirilir.
-DOM güncellemeleri kontrolsüz innerHTML yerine güvenli DOM metotları (createElement, textContent, replaceChildren) ile gerçekleştirilir.
-
-**🤝 Katkıda Bulunma**
-Bu depoyu çatallayın (Fork).
-Yeni özellik dalınızı oluşturun (git checkout -b feature/YeniOzellik).
-Değişikliklerinizi kaydedin (git commit -m 'feat: Yeni özellik eklendi').
-Dalınıza gönderin (git push origin feature/YeniOzellik).
-Bir Pull Request (PR) açın.
-
-**📄 Lisans**
-Bu proje MIT Lisansı kapsamında açık kaynak olarak sunulmaktadır.
