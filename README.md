@@ -66,17 +66,6 @@ Proje tamamen bağımsız ve istemci taraflı çalıştığı için herhangi bir
 
 ---
 
-## 🤝 Katkıda Bulunma
-
-Projeye katkı sağlamak isterseniz aşağıdaki adımları izleyebilirsiniz:
-
-1. Bu depoyu çatallayın (Fork edin).
-2. Yeni bir özellik dalı (branch) oluşturun:
-   ```bash
-   git checkout -b feature/YeniOzellik
-
-   ---
-
 ## 🔒 Güvenlik Notları
 
 Proje, istemci tarafında veri işlerken oluşabilecek güvenlik açıklarını önlemek için aşağıdaki standartları uygular:
