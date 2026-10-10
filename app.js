@@ -619,11 +619,6 @@
       historyList.unshift(q);
       if (historyList.length > 5) historyList.pop();
       renderHistory();
-      syncSavedState();
-      const queryParams=new URLSearchParams(location.search);
-      const sharedQuery=queryParams.get("q"),sharedLang=queryParams.get("lang");
-      if(sharedLang&&document.querySelector('#searchLang option[value="'+sharedLang+'"]'))document.getElementById("searchLang").value=sharedLang;
-      if(sharedQuery){document.getElementById("searchInput").value=sharedQuery;triggerSearch();}
     }
 
     function clearHistory() {
@@ -644,6 +639,11 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
+      syncSavedState();
+      const params=new URLSearchParams(location.search);
+      const initialQuery=params.get("q"),initialLang=params.get("lang");
+      if(initialLang&&document.querySelector("#searchLang option[value="+initialLang+"]"))document.getElementById("searchLang").value=initialLang;
+      if(initialQuery){document.getElementById("searchInput").value=initialQuery;triggerSearch();}
       syncSavedState();
       const params=new URLSearchParams(location.search),sharedQuery=params.get("q"),sharedLang=params.get("lang");
       if(sharedLang&&document.querySelector(`#searchLang option[value="${sharedLang}"]`))document.getElementById("searchLang").value=sharedLang;
