@@ -169,26 +169,26 @@
     let sortMode = "relevance";
     let savedOnly = false;
     let savedIds = new Set();
+    let savedRecords = {};
+    let collections = ["General"];
+    let activeCollection = "all";
     let paginationOffsets = { wiki: 0, papers: 0, books: 1, ebooks: 1 };
 
     function itemKey(item) { return `${item.category}:${item.url || item.title}`; }
     function setSort(value) { sortMode = value; renderResults(); }
-    function toggleSavedOnly() {
-      savedOnly = !savedOnly;
-      const button = document.getElementById("savedOnlyBtn");
-      button.setAttribute("aria-pressed", String(savedOnly));
-      button.firstChild.textContent = savedOnly ? "♥ Kaydedilenler " : "♡ Kaydedilenler ";
-      renderResults();
+    function syncSavedState(){
+      try{const r=JSON.parse(localStorage.getItem("findex_saved_records")||"{}");savedRecords=r&&typeof r==="object"&&!Array.isArray(r)?r:{};savedIds=new Set(Object.keys(savedRecords));const c=JSON.parse(localStorage.getItem("findex_collections")||'["General"]');collections=[...new Set(["General",...(Array.isArray(c)?c:[])])];}catch(e){savedRecords={};savedIds=new Set();collections=["General"]}renderCollectionOptions()
     }
-    function toggleSaved(key, button) {
-      if (savedIds.has(key)) savedIds.delete(key); else savedIds.add(key);
-      try { localStorage.setItem("findex_saved", JSON.stringify([...savedIds])); } catch(e) {}
-      button.setAttribute("aria-pressed", String(savedIds.has(key)));
-      button.textContent = savedIds.has(key) ? "♥" : "♡";
-      button.setAttribute("aria-label", savedIds.has(key) ? "Kaydedilenlerden çıkar" : "Kaydet");
-      document.getElementById("savedCount").textContent = savedIds.size;
-      if (savedOnly) renderResults();
-    }
+    function persistLibrary(){try{localStorage.setItem("findex_saved_records",JSON.stringify(savedRecords));localStorage.setItem("findex_collections",JSON.stringify(collections));localStorage.setItem("findex_saved",JSON.stringify([...savedIds]))}catch(e){}const c=document.getElementById("savedCount");if(c)c.textContent=savedIds.size}
+    function renderCollectionOptions(){const s=document.getElementById("collectionFilter");if(!s)return;const keep=activeCollection;s.replaceChildren();[["all",currentUILang==="tr"?"Tüm koleksiyonlar":"All collections"],...collections.map(x=>[x,x])].forEach(([v,l])=>{const o=document.createElement("option");o.value=v;o.textContent=l;s.appendChild(o)});s.value=keep==="all"||collections.includes(keep)?keep:"all"}
+    function setCollection(v){activeCollection=v;renderResults()}
+    function createCollection(){const n=prompt(currentUILang==="tr"?"Yeni koleksiyon adı":"New collection name");if(!n)return;const clean=n.trim().slice(0,48);if(!clean)return;if(!collections.includes(clean))collections.push(clean);activeCollection=clean;persistLibrary();renderCollectionOptions();renderResults()}
+    function toggleSavedOnly(){savedOnly=!savedOnly;const b=document.getElementById("savedOnlyBtn");b.setAttribute("aria-pressed",String(savedOnly));b.firstChild.textContent=savedOnly?"♥ Kaydedilenler ":"♡ Kaydedilenler ";renderCollectionOptions();renderResults()}
+    function toggleSaved(item,button){const key=itemKey(item);if(savedIds.has(key)){savedIds.delete(key);delete savedRecords[key]}else{savedIds.add(key);savedRecords[key]={...item,key,note:"",collection:activeCollection==="all"?"General":activeCollection}}persistLibrary();button.setAttribute("aria-pressed",String(savedIds.has(key)));button.textContent=savedIds.has(key)?"♥":"♡";button.setAttribute("aria-label",savedIds.has(key)?"Kaydedilenlerden çıkar":"Kaydet");if(savedOnly)renderResults()}
+    function editNote(key){const item=savedRecords[key];if(!item)return;const n=prompt(currentUILang==="tr"?"Bu kaynak için not":"Note for this source",item.note||"");if(n===null)return;item.note=n.trim();persistLibrary();renderResults()}
+    function moveToCollection(key,value){if(savedRecords[key]){savedRecords[key].collection=value;persistLibrary();if(savedOnly)renderResults()}}
+    function exportSaved(format){const items=Object.values(savedRecords);if(!items.length){alert(currentUILang==="tr"?"Önce kaynak kaydedin.":"Save a source first.");return}const content=format==="json"?JSON.stringify(items,null,2):items.map((x,i)=>"@misc{findex"+(i+1)+",\n  title={"+String(x.title||"").replace(/[{}]/g,"")+"},\n  author={"+String(x.author||"").replace(/[{}]/g,"")+"},\n  year={"+(x.year||"")+"},\n  doi={"+(x.doi||"")+"},\n  url={"+(x.url||"")+"}\n}").join("\n\n");const blob=new Blob([content],{type:format==="json"?"application/json":"application/x-bibtex"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=format==="json"?"findex-library.json":"findex-library.bib";a.click();URL.revokeObjectURL(a.href)}
+    async function shareSearch(){const u=new URL(location.href);u.searchParams.set("q",currentQuery);u.searchParams.set("lang",document.getElementById("searchLang").value);try{await navigator.clipboard.writeText(u.href);document.getElementById("resultSummary").textContent="Arama bağlantısı kopyalandı"}catch(e){prompt("Bağlantıyı kopyalayın",u.href)}}
 
     function changeUILang(lang) {
       currentUILang = lang;
@@ -502,10 +502,12 @@
       grid.replaceChildren();
       const dict = i18n[currentUILang] || i18n.tr;
 
-      let list = currentItems;
-      if (activeCategory !== "all") {
-        list = currentItems.filter(item => item.category === activeCategory);
-      }
+      let list=savedOnly?Object.values(savedRecords):currentItems;
+      if(activeCategory!=="all")list=list.filter(item=>item.category===activeCategory);
+      if(savedOnly&&activeCollection!=="all")list=list.filter(item=>(item.collection||"General")===activeCollection);
+      list=[...list];if(sortMode==="title")list.sort((a,b)=>(a.title||"").localeCompare(b.title||"",currentUILang));if(sortMode==="newest")list.sort((a,b)=>Number(b.year||0)-Number(a.year||0));
+      document.getElementById("resultsToolbar").style.display=currentQuery?"flex":"none";
+      document.getElementById("resultSummary").textContent=list.length+" sonuç · "+(currentQuery||"Kütüphane");document.getElementById("savedCount").textContent=savedIds.size;
 
       if (list.length === 0) {
         if (currentQuery) {
@@ -576,8 +578,11 @@
         linkBtn.rel = "noopener noreferrer";
         linkBtn.textContent = dict.examine;
 
-        cardBottom.appendChild(metrics);
-        cardBottom.appendChild(linkBtn);
+        const key=itemKey(item),isSaved=savedIds.has(key),saveBtn=document.createElement("button");
+        saveBtn.className="save-btn";saveBtn.type="button";saveBtn.textContent=isSaved?"♥":"♡";saveBtn.setAttribute("aria-pressed",String(isSaved));saveBtn.setAttribute("aria-label",isSaved?"Kaydedilenlerden çıkar":"Kaydet");saveBtn.title=saveBtn.getAttribute("aria-label");saveBtn.onclick=()=>toggleSaved(item,saveBtn);
+        const actions=document.createElement("div");actions.className="card-actions";actions.appendChild(saveBtn);
+        if(isSaved){const note=document.createElement("button");note.className="save-btn";note.type="button";note.textContent="✎";note.setAttribute("aria-label","Not ekle veya düzenle");note.onclick=()=>editNote(key);actions.appendChild(note);const folder=document.createElement("select");folder.className="collection-select";folder.setAttribute("aria-label","Kaynağın koleksiyonu");collections.forEach(n=>{const o=document.createElement("option");o.value=n;o.textContent=n;folder.appendChild(o)});folder.value=savedRecords[key]?.collection||"General";folder.onchange=()=>moveToCollection(key,folder.value);actions.appendChild(folder)}
+        actions.appendChild(linkBtn);cardBottom.appendChild(metrics);cardBottom.appendChild(actions);
 
         card.appendChild(topContainer);
         card.appendChild(cardBottom);
@@ -630,6 +635,10 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
+      syncSavedState();
+      const params=new URLSearchParams(location.search),sharedQuery=params.get("q"),sharedLang=params.get("lang");
+      if(sharedLang&&document.querySelector(`#searchLang option[value="${sharedLang}"]`))document.getElementById("searchLang").value=sharedLang;
+      if(sharedQuery){document.getElementById("searchInput").value=sharedQuery;triggerSearch();}
 
       try {
         const savedTheme = localStorage.getItem("findex_theme");
@@ -651,5 +660,6 @@
         categoryTabs.addEventListener("scroll", updateTabScrollButtons, { passive: true });
       }
       window.addEventListener("resize", updateTabScrollButtons);
+      document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus()}if(e.key==="Escape"&&document.activeElement===document.getElementById("searchInput"))document.getElementById("searchInput").value=""});
     });
   
