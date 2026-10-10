@@ -304,9 +304,9 @@
         return (data.message?.items || []).map((item, idx) => {
           const title = item.title && item.title.length > 0 ? item.title[0] : "Akademik Yayın";
           const year = item.issued?.["date-parts"]?.[0]?.[0] || null;
-          const author = item.author && item.author[0] ? `${item.author[0].family || ''} ${item.author[0].given || ''}`.trim() : "Hakemli Makale";
+          const author = item.author && item.author[0] ? `${item.author[0].family || ''} ${item.author[0].given || ''}`.trim() : "Yazar bilgisi yok";
           
-          let desc = item.abstract ? item.abstract.replace(/<\/?[^>]+(>|$)/g, "") : `Akademik araştırma bildirisi. Yazar(lar): ${author}. DOI kaydı mevcuttur.`;
+          let desc = item.abstract ? item.abstract.replace(/<\/?[^>]+(>|$)/g, "") : `Crossref kayıt bilgisi. Yazar(lar): ${author}.`;
           if (desc.length > 175) desc = desc.substring(0, 172) + "...";
 
           return {
@@ -314,11 +314,11 @@
             category: "papers",
             badgeText: "PAPERS",
             badgeClass: "badge-papers",
-            source: "CrossRef Academic / DOI",
+            source: "Crossref",
             title: title,
             desc: desc,
-            year: String(year),
-            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : "https://crossref.org")
+            author,\n            year: year ? String(year) : null,
+            doi: item.DOI || "",\n            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : `https://search.crossref.org/?q=${encodeURIComponent(title)}`)
           };
         });
       } catch (e) { return []; }
@@ -380,7 +380,7 @@
             title: book.title,
             desc: `Yazar: ${author} • İndirilme: ${book.download_count} • Telifsiz tam metin açık e-kitap.`,
             rating: "4.9",
-            year: "Klasik",
+            year: null,
             url: readUrl
           };
         });
