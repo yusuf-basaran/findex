@@ -190,8 +190,12 @@
     function exportSaved(format){const items=Object.values(savedRecords);if(!items.length){alert(currentUILang==="tr"?"Önce kaynak kaydedin.":"Save a source first.");return}const content=format==="json"?JSON.stringify(items,null,2):items.map((x,i)=>"@misc{findex"+(i+1)+",\n  title={"+String(x.title||"").replace(/[{}]/g,"")+"},\n  author={"+String(x.author||"").replace(/[{}]/g,"")+"},\n  year={"+(x.year||"")+"},\n  doi={"+(x.doi||"")+"},\n  url={"+(x.url||"")+"}\n}").join("\n\n");const blob=new Blob([content],{type:format==="json"?"application/json":"application/x-bibtex"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=format==="json"?"findex-library.json":"findex-library.bib";a.click();URL.revokeObjectURL(a.href)}
     async function shareSearch(){const u=new URL(location.href);u.searchParams.set("q",currentQuery);u.searchParams.set("lang",document.getElementById("searchLang").value);try{await navigator.clipboard.writeText(u.href);document.getElementById("resultSummary").textContent="Arama bağlantısı kopyalandı"}catch(e){prompt("Bağlantıyı kopyalayın",u.href)}}
 
+    const researchLabels={tr:["Başlangıç yılı","Bitiş yılı","Açık erişim","Önerilen sıra","Başlığa göre","En yeni yayın","Kaydedilenler"],en:["From year","To year","Open access","Recommended","Title","Newest publication","Saved"],es:["Año inicial","Año final","Acceso abierto","Recomendado","Título","Más recientes","Guardados"],de:["Ab Jahr","Bis Jahr","Open Access","Empfohlen","Titel","Neueste","Gespeichert"],fr:["Depuis","Jusqu’à","Accès libre","Recommandé","Titre","Plus récent","Enregistrés"],ru:["Год от","Год до","Открытый доступ","Рекомендуемые","По названию","Сначала новые","Сохранённое"],ar:["من سنة","إلى سنة","وصول مفتوح","موصى به","حسب العنوان","الأحدث","المحفوظات"]};
+    function updateResearchControls(){const t=researchLabels[currentUILang]||researchLabels.en;const labels=document.querySelectorAll(".advanced-filters label");if(labels[0])labels[0].firstChild.textContent=t[0]+" ";if(labels[1])labels[1].firstChild.textContent=t[1]+" ";const check=document.querySelector(".check-filter");if(check)check.lastChild.textContent=" "+t[2];document.querySelectorAll("#sortResults option").forEach((o,i)=>o.textContent=t[i+3]||o.textContent);const saved=document.getElementById("savedOnlyBtn");if(saved)saved.firstChild.textContent=(savedOnly?"♥ ":"♡ ")+t[6]+" ";document.getElementById("yearFrom")?.setAttribute("aria-label",t[0]);document.getElementById("yearTo")?.setAttribute("aria-label",t[1]);document.getElementById("openAccessOnly")?.setAttribute("aria-label",t[2]);}
+
     function changeUILang(lang) {
       currentUILang = lang;
+      updateResearchControls();
       const dict = i18n[lang] || i18n.tr;
 
       document.body.setAttribute("dir", dict.dir || "ltr");
@@ -615,6 +619,11 @@
       historyList.unshift(q);
       if (historyList.length > 5) historyList.pop();
       renderHistory();
+      syncSavedState();
+      const queryParams=new URLSearchParams(location.search);
+      const sharedQuery=queryParams.get("q"),sharedLang=queryParams.get("lang");
+      if(sharedLang&&document.querySelector('#searchLang option[value="'+sharedLang+'"]'))document.getElementById("searchLang").value=sharedLang;
+      if(sharedQuery){document.getElementById("searchInput").value=sharedQuery;triggerSearch();}
     }
 
     function clearHistory() {
@@ -660,6 +669,7 @@
         categoryTabs.addEventListener("scroll", updateTabScrollButtons, { passive: true });
       }
       window.addEventListener("resize", updateTabScrollButtons);
+      document.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus();}});
       document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus()}if(e.key==="Escape"&&document.activeElement===document.getElementById("searchInput"))document.getElementById("searchInput").value=""});
     });
   
