@@ -317,8 +317,10 @@
             source: "Crossref",
             title: title,
             desc: desc,
-            author,\n            year: year ? String(year) : null,
-            doi: item.DOI || "",\n            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : `https://search.crossref.org/?q=${encodeURIComponent(title)}`)
+            author,
+            year: year ? String(year) : null,
+            doi: item.DOI || "",
+            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : `https://search.crossref.org/?q=${encodeURIComponent(title)}`)
           };
         });
       } catch (e) { return []; }
