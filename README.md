@@ -75,3 +75,12 @@ Proje, istemci tarafında veri işlerken oluşabilecek güvenlik açıklarını 
 * **XSS Koruması (DOM API):** Dış kaynaklardan gelen veriler doğrudan `innerHTML` ile değil, `createElement` ve `textContent` metotları kullanılarak güvenli bir şekilde ekrana yazdırılır.
 
 ---
+
+## Research workspace features
+
+- Search publication records from Crossref and OpenAlex. OpenAlex metadata includes authors, publication year, citation count, and open-access status where available.
+- Filter OpenAlex results by publication years and open access; late responses from older searches are ignored.
+- Education sites are labeled outbound search links, not fictional catalog records.
+- Save references in browser storage, organize collections, add notes, and export the library as BibTeX or JSON.
+- Copy and reopen search URLs. Ctrl/⌘+K focuses search, and category tabs support arrow-key navigation.
+- Markup, presentation, and behavior are split across `index.html`, `styles.css`, and `app.js`.
