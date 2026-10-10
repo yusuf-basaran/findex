@@ -77,7 +77,7 @@
       </p>
 
       <div class="search-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="Örn: Yapay Zeka, Kuantum Fiziği, Nörobilim..." />
+        <input type="text" id="searchInput" class="search-input" aria-label="Araştırma konusu" placeholder="Örn: Yapay Zeka, Kuantum Fiziği, Nörobilim..." />
         
         <div class="search-controls">
           <select id="searchLang" class="glass-select" onchange="triggerSearch(true)">
@@ -147,7 +147,7 @@
       <label>Bitiş yılı <input id="yearTo" type="number" min="1800" max="2100" inputmode="numeric" placeholder="2026"></label>
       <label class="check-filter"><input id="openAccessOnly" type="checkbox"> Açık erişim</label>
     </section>
-    <div class="results-toolbar" id="resultsToolbar" style="display:none;"><span id="resultSummary" aria-live="polite"></span><div class="toolbar-actions"><select id="sortResults" class="toolbar-select" aria-label="Sonuçları sırala" onchange="setSort(this.value)"><option value="relevance">Önerilen sıra</option><option value="title">Başlığa göre</option><option value="newest">En yeni yayın</option></select><button class="saved-filter" id="savedOnlyBtn" type="button" aria-pressed="false" onclick="toggleSavedOnly()">♡ Kaydedilenler <span id="savedCount">0</span></button></div></div>
+    <div class="results-toolbar" id="resultsToolbar" style="display:none;"><span id="resultSummary" aria-live="polite"></span><div class="toolbar-actions"><select id="sortResults" class="toolbar-select" aria-label="Sonuçları sırala" onchange="setSort(this.value)"><option value="relevance">Önerilen sıra</option><option value="title">Başlığa göre</option><option value="newest">En yeni yayın</option></select><button class="saved-filter" id="savedOnlyBtn" type="button" aria-pressed="false" onclick="toggleSavedOnly()">♡ Kaydedilenler <span id="savedCount">0</span></button><label class="sr-only" for="collectionFilter">Koleksiyon</label><select id="collectionFilter" class="toolbar-select" aria-label="Koleksiyona göre filtrele" onchange="setCollection(this.value)"><option value="all">Tüm koleksiyonlar</option></select><button class="toolbar-select" type="button" onclick="createCollection()">＋ Koleksiyon</button><button class="toolbar-select" type="button" onclick="exportSaved('bibtex')">BibTeX</button><button class="toolbar-select" type="button" onclick="exportSaved('json')">JSON</button><button class="toolbar-select" type="button" onclick="shareSearch()">Bağlantıyı kopyala</button></div></div>
     <!-- Sonuç ve Durum Alanı -->
     <div id="statusBox" class="status-box" style="display: none;"></div>
     <div class="results-grid" id="resultsGrid"></div>
