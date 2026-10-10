@@ -915,7 +915,10 @@ body{font-family:Inter,"Plus Jakarta Sans",sans-serif;background-attachment:scro
     let activeCategory = "all";
     let currentQuery = "";
     let historyList = ["Yapay Zeka", "Kuantum Fiziği", "Nörobilim", "Sapiens"];
-    let currentItems = [];\n    let sortMode = "relevance";\n    let savedOnly = false;\n    let savedIds = new Set();
+    let currentItems = [];
+    let sortMode = "relevance";
+    let savedOnly = false;
+    let savedIds = new Set();
     let paginationOffsets = { wiki: 0, papers: 0, books: 1, ebooks: 1 };
 
     function itemKey(item) { return `${item.category}:${item.url || item.title}`; }
