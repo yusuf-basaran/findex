@@ -452,23 +452,27 @@
       btn.textContent = "...";
       btn.disabled = true;
 
+      const loadRun=searchRun;
       const searchLang = document.getElementById("searchLang").value || "tr";
       paginationOffsets.wiki += 20;
       paginationOffsets.papers += 20;
       paginationOffsets.books += 1;
       paginationOffsets.ebooks += 1;
 
-      const [wikiMore, papersMore, booksMore, ebooksMore] = await Promise.allSettled([
+      const [wikiMore, papersMore, booksMore, ebooksMore, openAlexMore] = await Promise.allSettled([
         fetchWikipedia(currentQuery, searchLang, paginationOffsets.wiki),
         fetchCrossRef(currentQuery, paginationOffsets.papers),
         fetchOpenLibrary(currentQuery, paginationOffsets.books),
-        fetchGutendex(currentQuery, paginationOffsets.ebooks)
+        fetchGutendex(currentQuery, paginationOffsets.ebooks),
+        fetchOpenAlex(currentQuery, paginationOffsets.papers / 20 + 1)
       ]);
+      if(loadRun!==searchRun){btn.disabled=false;return;}
 
       if (wikiMore.status === "fulfilled") currentItems.push(...wikiMore.value);
       if (papersMore.status === "fulfilled") currentItems.push(...papersMore.value);
       if (booksMore.status === "fulfilled") currentItems.push(...booksMore.value);
       if (ebooksMore.status === "fulfilled") currentItems.push(...ebooksMore.value);
+      if (openAlexMore.status === "fulfilled") currentItems.push(...openAlexMore.value);
 
       btn.textContent = i18n[currentUILang].load_more;
       btn.disabled = false;
@@ -510,7 +514,7 @@
       if(activeCategory!=="all")list=list.filter(item=>item.category===activeCategory);
       if(savedOnly&&activeCollection!=="all")list=list.filter(item=>(item.collection||"General")===activeCollection);
       list=[...list];if(sortMode==="title")list.sort((a,b)=>(a.title||"").localeCompare(b.title||"",currentUILang));if(sortMode==="newest")list.sort((a,b)=>Number(b.year||0)-Number(a.year||0));
-      document.getElementById("resultsToolbar").style.display=currentQuery?"flex":"none";
+      document.getElementById("resultsToolbar").style.display="flex";
       document.getElementById("resultSummary").textContent=list.length+" sonuç · "+(currentQuery||"Kütüphane");document.getElementById("savedCount").textContent=savedIds.size;
 
       if (list.length === 0) {
@@ -640,36 +644,36 @@
     document.addEventListener("DOMContentLoaded", () => {
       renderHistory();
       syncSavedState();
-      const params=new URLSearchParams(location.search);
-      const initialQuery=params.get("q"),initialLang=params.get("lang");
-      if(initialLang&&document.querySelector("#searchLang option[value="+initialLang+"]"))document.getElementById("searchLang").value=initialLang;
-      if(initialQuery){document.getElementById("searchInput").value=initialQuery;triggerSearch();}
-      syncSavedState();
-      const params=new URLSearchParams(location.search),sharedQuery=params.get("q"),sharedLang=params.get("lang");
-      if(sharedLang&&document.querySelector(`#searchLang option[value="${sharedLang}"]`))document.getElementById("searchLang").value=sharedLang;
-      if(sharedQuery){document.getElementById("searchInput").value=sharedQuery;triggerSearch();}
-
+      updateResearchControls();
+      const params = new URLSearchParams(location.search);
+      const initialQuery = params.get("q");
+      const initialLang = params.get("lang");
+      if (initialLang && /^[a-z]{2}$/.test(initialLang) && document.querySelector("#searchLang option[value=" + initialLang + "]")) {
+        document.getElementById("searchLang").value = initialLang;
+      }
       try {
         const savedTheme = localStorage.getItem("findex_theme");
-        const systemPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        
-        if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
+        const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (savedTheme === "dark" || (!savedTheme && systemDark)) {
           document.body.setAttribute("data-theme", "dark");
           document.getElementById("themeBtn").textContent = "☀️";
         }
       } catch(e) {}
-
-      document.getElementById("searchInput").addEventListener("keypress", (e) => {
+      document.getElementById("searchInput").addEventListener("keydown", e => {
         if (e.key === "Enter") triggerSearch();
+        if (e.key === "Escape") e.currentTarget.value = "";
       });
-
-      // Sekme listesi kaydırıldığında veya pencere boyutu değiştiğinde yön oklarını güncelle
-      const categoryTabs = document.getElementById("categoryTabs");
-      if (categoryTabs) {
-        categoryTabs.addEventListener("scroll", updateTabScrollButtons, { passive: true });
+      const tabs = document.getElementById("categoryTabs");
+      if (tabs) {
+        tabs.addEventListener("scroll", updateTabScrollButtons, {passive:true});
+        tabs.querySelectorAll(".tab-btn").forEach((tab,index,list) => tab.addEventListener("keydown",e => {
+          if (!["ArrowLeft","ArrowRight","Home","End"].includes(e.key)) return;
+          e.preventDefault();
+          const next=e.key==="Home"?0:e.key==="End"?list.length-1:(index+(e.key==="ArrowRight"?1:-1)+list.length)%list.length;
+          list[next].focus();list[next].click();
+        }));
       }
       window.addEventListener("resize", updateTabScrollButtons);
-      document.addEventListener("keydown",function(e){if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus();}});
-      document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus()}if(e.key==="Escape"&&document.activeElement===document.getElementById("searchInput"))document.getElementById("searchInput").value=""});
+      document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();document.getElementById("searchInput").focus();}});
+      if(initialQuery){document.getElementById("searchInput").value=initialQuery;triggerSearch();}
     });
-  
