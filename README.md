@@ -12,6 +12,26 @@
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
 </p>
 
+<!-- project-overview:start -->
+## Projeye genel bakış
+
+![Findex proje özellikleri: Birleşik kaynak arama, Araştırma filtreleri, Kişisel kütüphane, Kaynak dışa aktarımı, Yedi dil desteği, Tema ve mobil tasarım](docs/images/project-overview.png)
+
+[Görseli büyük aç](docs/images/project-overview.png) · [SVG kaynağı](docs/images/project-overview.svg)
+
+<details>
+<summary>Görseldeki özellikler ve ilgili kaynaklar</summary>
+
+- **[Birleşik kaynak arama](app.js)** — Wikipedia, CrossRef, Open Library ve Gutendex.
+- **[Araştırma filtreleri](index.html)** — Kategori, yayın yılı, açık erişim ve sıralama.
+- **[Kişisel kütüphane](app.js)** — Kaynak kaydetme ve koleksiyonlara ayırma.
+- **[Kaynak dışa aktarımı](app.js)** — Kaydedilen kaynakları BibTeX ve JSON indirme.
+- **[Yedi dil desteği](app.js)** — Çok dilli arayüz; Arapça için sağdan sola düzen.
+- **[Tema ve mobil tasarım](styles.css)** — Kalıcı açık / koyu tema ve duyarlı yerleşim.
+
+</details>
+<!-- project-overview:end -->
+
 ---
 
 ## 📌 Proje Hakkında
